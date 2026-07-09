@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/coverage
+**/.turbo
+data
+.git
+.github
+*.md
+.env
+.env.*
+!.env.example
+apps/api/test/.e2e-storage

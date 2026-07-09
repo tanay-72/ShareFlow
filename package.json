@@ -1,0 +1,21 @@
+{
+  "name": "shareflow",
+  "private": true,
+  "version": "1.0.0",
+  "description": "ShareFlow — a secure, production-grade file sharing platform",
+  "license": "MIT",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev:api": "pnpm --filter @shareflow/api start:dev",
+    "dev:web": "pnpm --filter @shareflow/web dev",
+    "build": "pnpm --filter @shareflow/shared build && pnpm --filter @shareflow/api build && pnpm --filter @shareflow/web build",
+    "test": "pnpm --filter @shareflow/api test && pnpm --filter @shareflow/web test",
+    "test:e2e": "pnpm --filter @shareflow/api test:e2e",
+    "lint": "pnpm --filter @shareflow/api lint && pnpm --filter @shareflow/web lint",
+    "prisma:migrate": "pnpm --filter @shareflow/api prisma:migrate",
+    "prisma:generate": "pnpm --filter @shareflow/api prisma:generate"
+  }
+}

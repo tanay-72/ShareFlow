@@ -1,0 +1,79 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-shareflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shareflow}
+      POSTGRES_DB: ${POSTGRES_DB:-shareflow}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Exposed for local `psql`/GUI access during development. Remove this
+    # port mapping in a real production deployment — the api/worker
+    # services reach Postgres over the internal Docker network regardless.
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shareflow}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: &api_environment
+      NODE_ENV: production
+      PORT: "4000"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-shareflow}:${POSTGRES_PASSWORD:-shareflow}@postgres:5432/${POSTGRES_DB:-shareflow}?schema=public
+      APP_SECRET: ${APP_SECRET:?APP_SECRET must be set — see .env.example}
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://localhost:5173}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:4000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      STORAGE_ROOT: /data/storage/objects
+      UPLOAD_TEMP_ROOT: /data/storage/tmp-uploads
+      UPLOAD_RATE_LIMIT_PER_HOUR: ${UPLOAD_RATE_LIMIT_PER_HOUR:-100}
+      DOWNLOAD_RATE_LIMIT_PER_HOUR: ${DOWNLOAD_RATE_LIMIT_PER_HOUR:-300}
+      CLEANUP_CRON_INTERVAL_MINUTES: ${CLEANUP_CRON_INTERVAL_MINUTES:-15}
+    volumes:
+      - storage_data:/data/storage
+    ports:
+      - "4000:4000"
+
+  # Same image as `api` (see apps/api/Dockerfile) — the cleanup worker is
+  # the same codebase running a different entrypoint, not a separate app.
+  worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    command: ["node", "dist/worker.main.js"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_started
+    environment: *api_environment
+    volumes:
+      - storage_data:/data/storage
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${PUBLIC_API_URL:-http://localhost:4000}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres_data:
+  storage_data:

@@ -1,0 +1,97 @@
+// ShareFlow database schema.
+//
+// PostgreSQL stores metadata only — file bytes never touch the database.
+// Content-addressed storage (StoredObject, keyed by sha256) is what makes
+// deduplication possible: many File share-links can point at one
+// StoredObject, and the physical bytes are only removed once the last
+// File referencing them is gone (see StoredObject.refCount).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UploadSessionStatus {
+  PENDING
+  COMPLETED
+  ABORTED
+}
+
+/// A chunked-upload-in-progress. Tracks the chunk manifest in the database
+/// (rather than trusting the filesystem alone) so an upload can be resumed
+/// or cleaned up even after a server restart.
+model UploadSession {
+  id               String              @id @default(uuid())
+  originalFilename String
+  claimedMimeType  String
+  totalSize        BigInt
+  chunkSize        Int
+  totalChunks      Int
+  status           UploadSessionStatus @default(PENDING)
+  createdAt        DateTime            @default(now())
+  expiresAt        DateTime
+
+  chunks UploadChunk[]
+
+  @@index([status, expiresAt])
+}
+
+/// One received chunk of an in-progress upload session. Recorded as soon as
+/// the chunk is durably written to the temp directory, which is what makes
+/// parallel chunk uploads and resume-after-refresh possible.
+model UploadChunk {
+  id              String   @id @default(uuid())
+  uploadSessionId String
+  chunkIndex      Int
+  size            Int
+  receivedAt      DateTime @default(now())
+
+  uploadSession UploadSession @relation(fields: [uploadSessionId], references: [id], onDelete: Cascade)
+
+  @@unique([uploadSessionId, chunkIndex])
+}
+
+/// A physical, content-addressed blob in the storage backend. Uniqueness on
+/// `sha256` is the entire deduplication mechanism: completing an upload whose
+/// hash already exists here just increments refCount instead of writing new
+/// bytes or a new row.
+model StoredObject {
+  id         String   @id @default(uuid())
+  sha256     String   @unique
+  size       BigInt
+  mimeType   String
+  storageKey String
+  refCount   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  files File[]
+
+  @@index([refCount])
+}
+
+/// A share link. This is the only entity end users interact with directly —
+/// it carries the access-control rules (password, expiry, one-time) for a
+/// given StoredObject, independent of how many other File rows point at the
+/// same physical bytes.
+model File {
+  id               String    @id @default(uuid())
+  slug             String    @unique
+  storedObjectId   String
+  originalFilename String
+  passwordHash     String?
+  oneTimeDownload  Boolean   @default(false)
+  expiresAt        DateTime?
+  downloadCount    Int       @default(0)
+  lastDownloadAt   DateTime?
+  createdAt        DateTime  @default(now())
+  deletedAt        DateTime?
+
+  storedObject StoredObject @relation(fields: [storedObjectId], references: [id])
+
+  @@index([expiresAt])
+  @@index([deletedAt])
+}

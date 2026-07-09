@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Local storage & database data (bind mounts)
+data/storage/**
+!data/storage/.gitkeep
+data/postgres/**
+!data/postgres/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+apps/api/prisma/dev.db
+
+# e2e test scratch storage
+apps/api/test/.e2e-storage/
+
+# stray tsc project-reference output (see apps/web/tsconfig.node.json)
+.tsc-out/
