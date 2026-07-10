@@ -48,6 +48,26 @@ class EnvironmentVariables {
   @IsOptional()
   STORAGE_ROOT?: string;
 
+  @IsIn(['local', 'r2'])
+  @IsOptional()
+  STORAGE_PROVIDER?: string;
+
+  @IsString()
+  @IsOptional()
+  R2_ACCOUNT_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  R2_ACCESS_KEY_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  R2_SECRET_ACCESS_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  R2_BUCKET?: string;
+
   @IsInt()
   @IsOptional()
   UPLOAD_RATE_LIMIT_PER_HOUR?: number;
