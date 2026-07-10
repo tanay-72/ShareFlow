@@ -3,9 +3,9 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   NotFound,
-  PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Readable, Transform } from 'stream';
@@ -43,12 +43,9 @@ export class CloudflareR2StorageProvider implements StorageProvider {
   async save(source: Readable, key: string): Promise<StorageSaveResult> {
     assertSafeObjectKey(key);
     let bytesWritten = 0;
-    // Counts bytes by transforming the stream in-line, rather than
-    // attaching a `.on('data', ...)` listener directly to the stream
-    // handed to `Body` — the AWS SDK computes its own checksum over `Body`
-    // and refuses to proceed if that stream is already flowing from an
-    // external listener ("Unable to calculate hash for flowing readable
-    // stream").
+    // Counts bytes by transforming the stream in-line rather than attaching
+    // a `.on('data', ...)` listener directly to the stream handed to
+    // `Body`, which would race the SDK's own consumption of it.
     const counter = new Transform({
       transform(chunk: Buffer, _encoding, callback) {
         bytesWritten += chunk.length;
@@ -56,13 +53,19 @@ export class CloudflareR2StorageProvider implements StorageProvider {
       },
     });
 
-    await this.client.send(
-      new PutObjectCommand({
+    // Chunk-merged uploads have no known Content-Length up front, and
+    // PutObjectCommand's default checksum/chunked-encoding middleware
+    // requires one. `Upload` handles streams of unknown length itself via
+    // multipart upload, sidestepping that requirement entirely.
+    const upload = new Upload({
+      client: this.client,
+      params: {
         Bucket: this.bucket,
         Key: key,
         Body: source.pipe(counter),
-      }),
-    );
+      },
+    });
+    await upload.done();
 
     return { key, size: bytesWritten };
   }
