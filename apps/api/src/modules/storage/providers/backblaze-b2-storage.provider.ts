@@ -8,7 +8,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Readable } from 'stream';
+import { Readable, Transform } from 'stream';
 import { AppConfig } from '../../../config/configuration';
 import { assertSafeObjectKey } from '../storage-key.util';
 import { ByteRange, StorageProvider, StorageSaveResult } from '../storage-provider.interface';
@@ -45,15 +45,24 @@ export class BackblazeB2StorageProvider implements StorageProvider {
   async save(source: Readable, key: string): Promise<StorageSaveResult> {
     assertSafeObjectKey(key);
     let bytesWritten = 0;
-    source.on('data', (chunk: Buffer) => {
-      bytesWritten += chunk.length;
+    // Counts bytes by transforming the stream in-line, rather than
+    // attaching a `.on('data', ...)` listener directly to the stream
+    // handed to `Body` — the AWS SDK computes its own checksum over `Body`
+    // and refuses to proceed if that stream is already flowing from an
+    // external listener ("Unable to calculate hash for flowing readable
+    // stream").
+    const counter = new Transform({
+      transform(chunk: Buffer, _encoding, callback) {
+        bytesWritten += chunk.length;
+        callback(null, chunk);
+      },
     });
 
     await this.client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
         Key: key,
-        Body: source,
+        Body: source.pipe(counter),
       }),
     );
 
