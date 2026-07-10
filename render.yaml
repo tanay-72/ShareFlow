@@ -50,39 +50,16 @@ services:
       - key: CLEANUP_CRON_INTERVAL_MINUTES
         value: "15"
 
-  # Same image as shareflow-api, different entrypoint — see apps/api/Dockerfile.
-  - type: worker
-    name: shareflow-worker
-    runtime: docker
-    dockerfilePath: ./apps/api/Dockerfile
-    dockerContext: .
-    dockerCommand: node dist/worker.main.js
-    plan: free
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: shareflow-db
-          property: connectionString
-      - key: APP_SECRET
-        sync: false
-      - key: PUBLIC_APP_URL
-        sync: false
-      - key: PUBLIC_API_URL
-        sync: false
-      - key: STORAGE_PROVIDER
-        value: b2
-      - key: B2_ENDPOINT
-        sync: false
-      - key: B2_ACCESS_KEY_ID
-        sync: false
-      - key: B2_SECRET_ACCESS_KEY
-        sync: false
-      - key: B2_BUCKET
-        sync: false
-      - key: CLEANUP_CRON_INTERVAL_MINUTES
-        value: "15"
+  # shareflow-worker (background cleanup job) is intentionally not defined
+  # here — Render's free tier has no instance type for "type: worker"
+  # services (Starter, ~$7/mo minimum, is the cheapest that supports it).
+  # Until it's added back, expired/one-time-download files and abandoned
+  # upload sessions won't be automatically purged. To add it back later,
+  # either (a) add a `type: worker` service reusing apps/api/Dockerfile
+  # with `dockerCommand: node dist/worker.main.js` on a paid plan, or
+  # (b) convert CleanupService to a single-pass entrypoint and run it as a
+  # Render Cron Job instead, which bills per execution-second rather than
+  # 24/7.
 
   - type: web
     name: shareflow-web
