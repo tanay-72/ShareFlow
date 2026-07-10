@@ -31,17 +31,17 @@ services:
       - key: CORS_ORIGINS
         sync: false
       - key: STORAGE_PROVIDER
-        value: r2
-      # R2 credentials — create a bucket + API token in the Cloudflare
-      # dashboard, then fill these in via the Render dashboard (not stored
-      # in this file / git).
-      - key: R2_ACCOUNT_ID
+        value: b2
+      # Backblaze B2 credentials (S3-compatible Application Key) — create a
+      # bucket + application key in the Backblaze dashboard, then fill
+      # these in via the Render dashboard (not stored in this file / git).
+      - key: B2_ENDPOINT
         sync: false
-      - key: R2_ACCESS_KEY_ID
+      - key: B2_ACCESS_KEY_ID
         sync: false
-      - key: R2_SECRET_ACCESS_KEY
+      - key: B2_SECRET_ACCESS_KEY
         sync: false
-      - key: R2_BUCKET
+      - key: B2_BUCKET
         sync: false
       - key: UPLOAD_RATE_LIMIT_PER_HOUR
         value: "100"
@@ -72,14 +72,14 @@ services:
       - key: PUBLIC_API_URL
         sync: false
       - key: STORAGE_PROVIDER
-        value: r2
-      - key: R2_ACCOUNT_ID
+        value: b2
+      - key: B2_ENDPOINT
         sync: false
-      - key: R2_ACCESS_KEY_ID
+      - key: B2_ACCESS_KEY_ID
         sync: false
-      - key: R2_SECRET_ACCESS_KEY
+      - key: B2_SECRET_ACCESS_KEY
         sync: false
-      - key: R2_BUCKET
+      - key: B2_BUCKET
         sync: false
       - key: CLEANUP_CRON_INTERVAL_MINUTES
         value: "15"

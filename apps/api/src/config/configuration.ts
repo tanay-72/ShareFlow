@@ -5,6 +5,13 @@ export interface R2Config {
   bucket: string;
 }
 
+export interface B2Config {
+  endpoint: string;
+  applicationKeyId: string;
+  applicationKey: string;
+  bucket: string;
+}
+
 export interface AppConfig {
   nodeEnv: string;
   port: number;
@@ -13,14 +20,17 @@ export interface AppConfig {
   publicAppUrl: string;
   publicApiUrl: string;
   corsOrigins: string[];
-  storageProvider: 'local' | 'r2';
+  storageProvider: 'local' | 'r2' | 'b2';
   storageRoot: string;
   uploadTempRoot: string;
   uploadRateLimitPerHour: number;
   downloadRateLimitPerHour: number;
   cleanupCronIntervalMinutes: number;
   r2?: R2Config;
+  b2?: B2Config;
 }
+
+const STORAGE_PROVIDERS = ['local', 'r2', 'b2'] as const;
 
 export default (): { app: AppConfig } => ({
   app: {
@@ -34,7 +44,11 @@ export default (): { app: AppConfig } => ({
       .split(',')
       .map((origin) => origin.trim())
       .filter(Boolean),
-    storageProvider: process.env.STORAGE_PROVIDER === 'r2' ? 'r2' : 'local',
+    storageProvider: (STORAGE_PROVIDERS as readonly string[]).includes(
+      process.env.STORAGE_PROVIDER ?? '',
+    )
+      ? (process.env.STORAGE_PROVIDER as AppConfig['storageProvider'])
+      : 'local',
     storageRoot: process.env.STORAGE_ROOT ?? './data/storage/objects',
     uploadTempRoot: process.env.UPLOAD_TEMP_ROOT ?? './data/storage/tmp-uploads',
     uploadRateLimitPerHour: parseInt(process.env.UPLOAD_RATE_LIMIT_PER_HOUR ?? '100', 10),
@@ -49,6 +63,14 @@ export default (): { app: AppConfig } => ({
           accessKeyId: process.env.R2_ACCESS_KEY_ID as string,
           secretAccessKey: process.env.R2_SECRET_ACCESS_KEY as string,
           bucket: process.env.R2_BUCKET as string,
+        }
+      : undefined,
+    b2: process.env.B2_ENDPOINT
+      ? {
+          endpoint: process.env.B2_ENDPOINT as string,
+          applicationKeyId: process.env.B2_ACCESS_KEY_ID as string,
+          applicationKey: process.env.B2_SECRET_ACCESS_KEY as string,
+          bucket: process.env.B2_BUCKET as string,
         }
       : undefined,
   },

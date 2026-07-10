@@ -48,7 +48,7 @@ class EnvironmentVariables {
   @IsOptional()
   STORAGE_ROOT?: string;
 
-  @IsIn(['local', 'r2'])
+  @IsIn(['local', 'r2', 'b2'])
   @IsOptional()
   STORAGE_PROVIDER?: string;
 
@@ -67,6 +67,22 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   R2_BUCKET?: string;
+
+  @IsString()
+  @IsOptional()
+  B2_ENDPOINT?: string;
+
+  @IsString()
+  @IsOptional()
+  B2_ACCESS_KEY_ID?: string;
+
+  @IsString()
+  @IsOptional()
+  B2_SECRET_ACCESS_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  B2_BUCKET?: string;
 
   @IsInt()
   @IsOptional()
