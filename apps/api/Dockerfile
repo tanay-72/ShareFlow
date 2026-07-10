@@ -9,6 +9,11 @@
 # docker-compose.yml).
 
 FROM node:20-alpine AS build
+# Prisma's query/schema engine binaries are linked against OpenSSL, which
+# Alpine's base image doesn't include — without this, `prisma generate`
+# and the engine itself fail with a non-JSON error at the native binary
+# level ("Could not parse schema engine response").
+RUN apk add --no-cache openssl
 RUN corepack enable
 WORKDIR /repo
 
@@ -27,6 +32,7 @@ RUN pnpm --filter @shareflow/api build
 # ---------------------------------------------------------------------------
 
 FROM node:20-alpine AS runtime
+RUN apk add --no-cache openssl
 RUN corepack enable
 ENV NODE_ENV=production
 WORKDIR /repo
