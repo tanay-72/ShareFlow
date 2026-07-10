@@ -21,7 +21,7 @@ COPY packages/shared packages/shared
 COPY apps/api apps/api
 
 RUN pnpm --filter @shareflow/shared build
-RUN pnpm --filter @shareflow/api exec prisma generate --schema=apps/api/prisma/schema.prisma
+RUN pnpm --filter @shareflow/api exec prisma generate --schema=prisma/schema.prisma
 RUN pnpm --filter @shareflow/api build
 
 # ---------------------------------------------------------------------------
