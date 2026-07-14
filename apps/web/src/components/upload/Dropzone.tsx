@@ -55,20 +55,20 @@ export function Dropzone({ onFilesSelected, disabled }: DropzoneProps) {
           if (!disabled) acceptFiles(event.dataTransfer.files);
         }}
         aria-disabled={disabled}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-16 text-center transition ${
+        className={`group relative flex cursor-pointer flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed px-8 py-16 text-center transition-all duration-300 ${
           isDraggingOver
-            ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/30'
-            : 'border-slate-300 hover:border-brand-400 dark:border-slate-700'
+            ? 'border-brand-500 bg-brand-500/10 scale-[1.01] shadow-xl shadow-brand-500/5 dark:border-brand-400 dark:bg-brand-500/5'
+            : 'border-slate-200/90 bg-white/40 hover:border-brand-500/60 hover:bg-white/80 hover:shadow-lg hover:shadow-slate-100/50 dark:border-slate-800/80 dark:bg-slate-900/10 dark:hover:border-brand-500/40 dark:hover:bg-slate-900/30 dark:hover:shadow-black/10'
         } ${disabled ? 'pointer-events-none opacity-50' : ''}`}
       >
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
-          <UploadCloud className="h-6 w-6" />
+        <span className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100/80 text-brand-600 shadow-sm transition-all duration-300 dark:from-slate-850 dark:to-slate-800/80 dark:text-brand-400 ${isDraggingOver ? 'scale-110 rotate-3' : 'group-hover:scale-105'}`}>
+          <UploadCloud className={`h-7 w-7 transition-transform duration-300 ${isDraggingOver ? 'animate-bounce' : 'group-hover:-translate-y-0.5'}`} />
         </span>
-        <div>
-          <p className="font-medium text-slate-900 dark:text-slate-100">
-            Drag &amp; drop files here, or click to browse
+        <div className="space-y-1">
+          <p className="font-display text-base font-semibold text-slate-800 dark:text-slate-200">
+            Drag &amp; drop files here, or <span className="text-brand-600 dark:text-brand-400 group-hover:underline">browse</span>
           </p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             Up to {formatBytes(MAX_FILE_SIZE_BYTES)} per file &middot; multiple files supported
           </p>
         </div>
@@ -80,7 +80,7 @@ export function Dropzone({ onFilesSelected, disabled }: DropzoneProps) {
           onChange={(event) => acceptFiles(event.target.files)}
         />
       </div>
-      {rejectionError && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{rejectionError}</p>}
+      {rejectionError && <p className="mt-2 text-sm text-red-650 dark:text-red-400">{rejectionError}</p>}
     </div>
   );
 }

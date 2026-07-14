@@ -28,11 +28,13 @@ export function UploadPage() {
   }, [items, addEntry]);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 px-4 py-10">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Share files securely</h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          No account needed. Files up to 2GB, encrypted-in-transit, with expiring and password-protected links.
+    <div className="mx-auto max-w-2xl space-y-8 px-4 py-12 md:py-16">
+      <div className="space-y-3 text-center">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+          Share files securely
+        </h1>
+        <p className="text-sm font-medium text-slate-600 max-w-md mx-auto leading-relaxed dark:text-slate-400">
+          Files up to 2GB, encrypted-in-transit, with expiring and password-protected links.
         </p>
       </div>
 

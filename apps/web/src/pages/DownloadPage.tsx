@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { AlertTriangle, Check, Download, Loader2, Zap } from 'lucide-react';
+import { AlertTriangle, Check, Download, Loader2, Zap, File, FileText, Image, Music, Video } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ApiError, getFileMetadata, requestFileAccess } from '../api/client';
@@ -64,24 +64,41 @@ export function DownloadPage() {
 
   const file = metadataQuery.data!;
 
+  const IconComponent = {
+    image: Image,
+    video: Video,
+    audio: Music,
+    pdf: FileText,
+    none: File,
+  }[file.previewCategory] || File;
+
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-10">
-      <div className="card space-y-4 p-6">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="truncate text-lg font-semibold text-slate-900 dark:text-slate-100">
-              {file.originalFilename}
-            </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">{formatBytes(file.size)}</p>
-          </div>
+    <div className="mx-auto max-w-2xl space-y-6 px-4 py-12 md:py-16">
+      <div className="card space-y-5 p-6">
+        <div className="flex flex-col items-center justify-center p-6 bg-slate-50/50 rounded-2xl border border-slate-200/50 dark:bg-slate-900/30 dark:border-slate-800/80 mb-4">
+          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 text-brand-600 shadow-md shadow-brand-500/5 dark:from-slate-800 dark:to-slate-700/60 dark:text-brand-400">
+            <IconComponent className="h-8 w-8" />
+          </span>
+          <h1 className="mt-4 text-lg font-bold tracking-tight text-slate-800 text-center break-all font-display dark:text-slate-105 max-w-md">
+            {file.originalFilename}
+          </h1>
+          <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">
+            {formatBytes(file.size)}
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between border-b border-slate-200/50 pb-4 dark:border-slate-800/60">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            Expiration
+          </span>
           <ExpirationCountdown expiresAt={file.expiresAt} />
         </div>
 
         {file.oneTimeDownload && (
-          <p className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
-            <Zap className="h-3.5 w-3.5 shrink-0" />
-            This is a one-time download — the file will be deleted immediately after downloading.
-          </p>
+          <div className="flex items-start gap-2.5 rounded-xl bg-amber-500/10 p-3.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
+            <Zap className="h-4 w-4 shrink-0 text-amber-500" />
+            <span>This is a one-time download — the file will be deleted immediately after downloading.</span>
+          </div>
         )}
 
         {file.requiresPassword && !downloadUrl ? (
@@ -91,12 +108,12 @@ export function DownloadPage() {
             isSubmitting={accessMutation.isPending}
           />
         ) : downloadUrl && file.oneTimeDownload && downloadStarted ? (
-          <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-            <Check className="h-4 w-4 shrink-0" />
-            Download started — this file has now been deleted and this link is no longer valid.
+          <div className="flex items-center gap-2.5 rounded-xl bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+            <Check className="h-4.5 w-4.5 shrink-0 text-emerald-500" />
+            <span>Download started — this file has now been deleted and this link is no longer valid.</span>
           </div>
         ) : downloadUrl ? (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {/* A live preview would fetch the file itself, which for a
                 one-time-download file would silently consume its single
                 use before the visitor ever clicks Download. */}
@@ -108,13 +125,13 @@ export function DownloadPage() {
               />
             )}
             {file.previewCategory !== 'none' && file.oneTimeDownload && (
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 Preview is unavailable for one-time downloads. Click Download to view the file.
               </p>
             )}
             <button
               type="button"
-              className="btn-primary w-full"
+              className="btn-primary w-full !py-3.5 text-base tracking-wide"
               disabled={isDownloading}
               onClick={async () => {
                 setIsDownloading(true);
@@ -126,15 +143,19 @@ export function DownloadPage() {
                 }
               }}
             >
-              {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              {isDownloading ? 'Downloading…' : 'Download'}
+              {isDownloading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Download className="h-5 w-5" />
+              )}
+              {isDownloading ? 'Downloading…' : 'Download File'}
             </button>
           </div>
         ) : (
-          <div className="h-10 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+          <div className="h-12 animate-pulse rounded-xl bg-slate-100 dark:bg-slate-800" />
         )}
 
-        <div className="flex justify-between text-xs text-slate-400 dark:text-slate-500">
+        <div className="flex justify-between text-xs font-semibold text-slate-400 dark:text-slate-500 pt-1">
           <span>{file.downloadCount} download{file.downloadCount === 1 ? '' : 's'}</span>
           {file.lastDownloadAt && <span>Last: {new Date(file.lastDownloadAt).toLocaleString()}</span>}
         </div>

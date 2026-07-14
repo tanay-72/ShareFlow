@@ -2,30 +2,100 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+  --bg-color: #f1f3f9;
+  --bg-glow-1: rgba(99, 102, 241, 0.09);
+  --bg-glow-2: rgba(236, 72, 153, 0.07);
+  --bg-glow-3: rgba(14, 165, 233, 0.05);
+}
+
+.dark {
+  color-scheme: dark;
+  --bg-color: #03030d;
+  --bg-glow-1: rgba(99, 102, 241, 0.15);
+  --bg-glow-2: rgba(236, 72, 153, 0.12);
+  --bg-glow-3: rgba(14, 165, 233, 0.08);
+}
+
 @layer base {
   html {
-    color-scheme: light dark;
+    scrollbar-color: rgba(15, 23, 42, 0.25) transparent;
+    scrollbar-width: thin;
+  }
+
+  html.dark {
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+    background-color: var(--bg-color);
+    overflow-x: hidden;
+    @apply text-slate-900 antialiased dark:text-slate-100;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Outfit", "Plus Jakarta Sans", sans-serif;
+  }
+
+  @keyframes ambient-spin-1 {
+    0% {
+      transform: rotate(0deg) scale(1);
+    }
+    50% {
+      transform: rotate(180deg) scale(1.08);
+    }
+    100% {
+      transform: rotate(360deg) scale(1);
+    }
+  }
+
+  @keyframes ambient-spin-2 {
+    0% {
+      transform: rotate(0deg) scale(1.08);
+    }
+    50% {
+      transform: rotate(-180deg) scale(0.92);
+    }
+    100% {
+      transform: rotate(-360deg) scale(1.08);
+    }
+  }
+
+  @keyframes star-drift {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-50%);
+    }
+  }
+
+  @keyframes solar-orbit {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900;
+    @apply rounded-2xl border border-white/60 bg-white/70 shadow-xl shadow-slate-100/40 backdrop-blur-xl transition-all duration-300 dark:border-slate-800/80 dark:bg-slate-900/50 dark:shadow-2xl dark:shadow-black/20;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:focus-visible:ring-offset-slate-950;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-500/10 transition-all duration-300 hover:-translate-y-0.5 hover:from-brand-500 hover:to-indigo-500 hover:shadow-brand-500/20 active:translate-y-0 disabled:pointer-events-none disabled:opacity-50 dark:from-brand-600 dark:to-indigo-600 dark:hover:from-brand-500 dark:hover:to-indigo-500;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-slate-100 hover:text-slate-950 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-800 dark:bg-slate-800/50 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white;
   }
 
   .input {
-    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100;
+    @apply w-full rounded-xl border border-slate-200/85 bg-white/70 px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400/80 shadow-sm backdrop-blur-md focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-slate-800/80 dark:bg-slate-950/40 dark:text-slate-100 dark:placeholder:text-slate-500/80 dark:focus:border-brand-500 dark:focus:ring-brand-500/15;
   }
 }
+
