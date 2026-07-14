@@ -31,18 +31,18 @@ export function ShareLinkCard({ shareUrl, qrCodeDataUrl, deduplicated }: ShareLi
         <button 
           type="button" 
           onClick={copyLink} 
-          className={`btn-secondary shrink-0 flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-205 active:scale-90 ${copied ? 'bg-emerald-50 border-emerald-250 text-emerald-600 dark:bg-emerald-950/20 dark:border-emerald-800/50 dark:text-emerald-400' : ''}`} 
+          className={`btn-secondary shrink-0 flex h-10 w-10 !p-0 items-center justify-center rounded-xl transition-all duration-205 active:scale-90 ${copied ? 'bg-emerald-50 border-emerald-250 text-emerald-600 dark:bg-emerald-950/20 dark:border-emerald-800/50 dark:text-emerald-400' : ''}`} 
           aria-label="Copy link"
         >
-          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+          {copied ? <Check className="h-4.5 w-4.5" /> : <Copy className="h-4.5 w-4.5" />}
         </button>
         <button
           type="button"
           onClick={() => setShowQr((v) => !v)}
-          className={`btn-secondary shrink-0 flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-205 active:scale-90 ${showQr ? 'bg-indigo-50 border-indigo-250 text-indigo-600 dark:bg-indigo-950/20 dark:border-indigo-800/50 dark:text-indigo-400' : ''}`}
+          className={`btn-secondary shrink-0 flex h-10 w-10 !p-0 items-center justify-center rounded-xl transition-all duration-205 active:scale-90 ${showQr ? 'bg-indigo-50 border-indigo-250 text-indigo-600 dark:bg-indigo-950/20 dark:border-indigo-800/50 dark:text-indigo-400' : ''}`}
           aria-label="Show QR code"
         >
-          <QrCode className="h-4 w-4" />
+          <QrCode className="h-4.5 w-4.5" />
         </button>
       </div>
       {deduplicated && (
