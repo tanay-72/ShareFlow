@@ -1,6 +1,6 @@
 # ShareFlow
 
-**A secure, production-grade file sharing platform** — chunked resumable uploads up to 2GB, streaming downloads, content-addressed deduplication, expiring/password-protected/one-time share links, and a storage layer that swaps from local disk to S3/R2/GCS without touching business logic.
+**A secure, production-grade file sharing platform** — chunked resumable uploads up to 2GB, streaming downloads, content-addressed deduplication, expiring/password-protected/one-time share links, and a storage layer that swaps from local disk to Cloudflare R2, Backblaze B2, or Amazon S3 without touching business logic.
 
 No accounts. No login. Just a link.
 
